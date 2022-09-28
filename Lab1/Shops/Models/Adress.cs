@@ -1,10 +1,10 @@
 ﻿namespace Shops.Models;
 
-public class Adress
+public class Address
 {
     private string _streetName;
     private int _buildNumber;
-    public Adress(string streetName, int buildNumber)
+    public Address(string streetName, int buildNumber)
     {
         _streetName = streetName;
         _buildNumber = buildNumber;

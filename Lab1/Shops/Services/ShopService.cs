@@ -6,155 +6,85 @@ namespace Shops.Services;
 
 public class ShopService : IShopService
 {
-    private List<Order> _ordersList;
-    private List<Shop> _shopsList;
+    private readonly List<Shop> _shopsList;
 
     public ShopService()
     {
-        _ordersList = new List<Order>(0);
         _shopsList = new List<Shop>(0);
     }
 
-    public Shop AddShop(string shopName, Adress shopAdress)
+    public Shop AddShop(string shopName, Address shopAddress)
     {
-        foreach (Shop shop in _shopsList)
+        if (_shopsList.Any(shop => shop.Address == shopAddress))
         {
-            if (shop.Adress == shopAdress)
-            {
-                throw new RecurringAdressException();
-            }
+            throw new RecurringAddressException();
         }
 
-        var newShop = new Shop(shopName, shopAdress);
+        var newShop = new Shop(shopName, shopAddress);
         _shopsList.Add(newShop);
         return newShop;
     }
 
-    public void AddItem(Shop shop, Item item, double price, int count)
+    public void AddItem(Shop shop, Item item, decimal price, int count)
     {
-        if (shop.ItemsList.Contains(item))
-        {
-            foreach (Offer offer in shop.OfferList)
-            {
-                if (offer.Item == item)
-                {
-                    offer.Count += count;
-                }
-            }
-        }
-        else
-        {
-            var newOffer = new Offer(item, count, price);
-            shop.ItemsList.Add(item);
-            shop.OfferList.Add(newOffer);
-        }
+        shop.AddItem(item, price, count);
     }
 
-    public void AddItems(Shop shop, List<Offer> offers)
+    public void SupplyItems(Shop shop, List<Offer> offers)
     {
-        foreach (Offer offer in offers)
-        {
-            AddItem(shop, offer.Item, offer.Price, offer.Count);
-        }
+        shop.AddItems(offers);
     }
 
-    public Order AddToBracket(Shop shop, Customer customer, Item item, int count)
+    public void AddToBracket(Shop shop, Customer customer, Item item, int count)
     {
-        double currentPrice = 0;
-        foreach (Offer offer in shop.OfferList)
-        {
-            if (offer.Item == item)
-            {
-                if (offer.Count < count)
-                {
-                    throw new LackOfItemsException();
-                }
-
-                currentPrice = offer.Price;
-                break;
-            }
-        }
-
-        if (currentPrice == 0)
-        {
-            throw new LackOfItemsException();
-        }
-
-        foreach (Order order in _ordersList)
-        {
-            if (order.Customer == customer)
-            {
-                order.Items.Add(item, count);
-                order.TotalCost += currentPrice * count;
-                return order;
-            }
-        }
-
-        var newOrder = new Order(item, count, shop, customer);
-        newOrder.TotalCost = currentPrice * count;
-        _ordersList.Add(newOrder);
-        return newOrder;
+        decimal currentPrice = shop.KnowPrice(item, count);
+        customer.AddToBracket(item, count, currentPrice, shop);
     }
 
-    public void SetShopRevenue(Shop shop, double revenue)
+    public void RemoveFromBracket(Shop shop, Customer customer, Item item, int count)
+    {
+        decimal currentPrice = shop.KnowPrice(item, count);
+        customer.RemoveFromBracket(item, count, currentPrice);
+    }
+
+    public void SetShopRevenue(Shop shop, decimal revenue)
     {
         shop.SetRevenue(revenue);
     }
 
-    public void Buy(Order order)
+    public void Buy(Customer customer)
     {
-        if (order.TotalCost > order.Customer.Money)
-        {
-            throw new LackOfMoneyException();
-        }
-
-        SetShopRevenue(order.Shop, order.TotalCost);
-        order.Customer.Money -= order.TotalCost;
-        foreach (var product in order.Items)
-        {
-            foreach (Offer item in order.Shop.OfferList)
-            {
-                if (product.Key == item.Item)
-                {
-                    item.Count -= product.Value;
-                }
-            }
-        }
+        customer.Buy();
+        customer.Order.Shop.Buy(customer.Order.Items, customer.Order.TotalCost);
     }
 
-    public void ChangePrice(Shop shop, Item item, double newPrice)
+    public void ChangePrice(Shop shop, Item item, decimal newPrice)
     {
-        foreach (Offer offer in shop.OfferList)
+        Offer? requiredOffer = shop.OfferList.FirstOrDefault(offer => offer.Item == item);
+        if (requiredOffer is null)
         {
-            if (offer.Item != item) continue;
-            offer.Price = newPrice;
-            break;
+            throw new NonexistentItemException(item);
         }
+
+        requiredOffer.Price = newPrice;
     }
 
-    public Shop FindTheBestOffer(Item item, int count)
+    public Shop? FindTheBestOffer(Item item, int count)
     {
-        double bestPrice = double.MaxValue;
+        decimal bestPrice = decimal.MaxValue;
         Shop? bestShop = null;
         foreach (Shop shop in _shopsList)
         {
-            foreach (Offer offer in shop.OfferList)
-            {
-                if (offer.Item != item) continue;
-                if (offer.Count < count) continue;
-                if (offer.Price < bestPrice)
-                {
-                    bestPrice = offer.Price;
-                    bestShop = shop;
-                }
-
-                break;
-            }
+            Offer? offer = shop.OfferList.FirstOrDefault(offer => offer.Item == item);
+            if (offer is null || offer.Count < count) continue;
+            if (offer.Price >= bestPrice) continue;
+            bestPrice = offer.Price;
+            bestShop = shop;
         }
 
         if (bestShop == null)
         {
-            throw new LackOfItemsException();
+            LackOfItemsException.LackOfItemsInShopException(item);
         }
 
         return bestShop;

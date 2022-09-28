@@ -1,24 +1,42 @@
-﻿namespace Shops.Entities;
+﻿using Shops.Exceptions;
 
-public class Order
+namespace Shops.Entities;
+
+public class CustomerOrder
 {
-    public Order(Dictionary<Item, int> items, Shop shop, Customer customer)
+    public CustomerOrder(Item item, int count, Shop shop, decimal price)
     {
-        Items = items;
+        Items = new Dictionary<Item, int>(0) { { item, count } };
         Shop = shop;
-        Customer = customer;
+        TotalCost += count * price;
     }
 
-    public Order(Item item, int count, Shop shop, Customer customer)
-    {
-        Items = new Dictionary<Item, int>(0);
-        Items.Add(item, count);
-        Shop = shop;
-        Customer = customer;
-    }
-
-    public Dictionary<Item, int> Items { get; }
     public Shop Shop { get; }
-    public Customer Customer { get; }
-    public double TotalCost { get; set; }
+    public Dictionary<Item, int> Items { get; private set; }
+    public decimal TotalCost { get; private set; }
+
+    public void AddItems(Item item, int count, decimal price)
+    {
+        if (Items.ContainsKey(item))
+        {
+            Items[item] += count;
+        }
+        else
+        {
+            Items.Add(item, count);
+        }
+
+        TotalCost += price * count;
+    }
+
+    public void RemoveItems(Item item, int count, decimal price)
+    {
+        if (Items[item] < count)
+        {
+            LackOfItemsException.LackOfItemsInBracketException(item);
+        }
+
+        Items[item] -= count;
+        TotalCost -= price * count;
+    }
 }

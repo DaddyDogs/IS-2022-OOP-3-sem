@@ -2,7 +2,7 @@
 
 public class Offer
 {
-    public Offer(Item item, int count, double price)
+    public Offer(Item item, int count, decimal price)
     {
         Item = item;
         Count = count;
@@ -11,5 +11,5 @@ public class Offer
 
     public Item Item { get; }
     public int Count { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
 }

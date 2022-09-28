@@ -1,10 +1,7 @@
 ﻿namespace Shops.Exceptions;
 
-public class LackOfMoneyException : Exceptions
+public class LackOfMoneyException : ShopExceptions
 {
-    public LackOfMoneyException() { }
-    public LackOfMoneyException(string message)
-        : base(message) { }
-    public LackOfMoneyException(string message, Exception innerException)
-        : base(message, innerException) { }
+    public LackOfMoneyException()
+        : base("Card account does not have enough credit") { }
 }

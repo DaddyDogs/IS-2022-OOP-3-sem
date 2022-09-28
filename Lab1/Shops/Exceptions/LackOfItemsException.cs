@@ -1,10 +1,13 @@
-﻿namespace Shops.Exceptions;
+﻿using Shops.Entities;
+namespace Shops.Exceptions;
 
-public class LackOfItemsException : Exceptions
+public class LackOfItemsException : ShopExceptions
 {
-    public LackOfItemsException() { }
-    public LackOfItemsException(string message)
+    private LackOfItemsException(string message)
         : base(message) { }
-    public LackOfItemsException(string message, Exception innerException)
-        : base(message, innerException) { }
+
+    public static LackOfItemsException LackOfItemsInShopException(Item item) =>
+        throw new LackOfItemsException($"There is not enough {item.Name} in this shop");
+    public static LackOfItemsException LackOfItemsInBracketException(Item item) =>
+        throw new LackOfItemsException($"There is not enough {item.Name} your bracket");
 }

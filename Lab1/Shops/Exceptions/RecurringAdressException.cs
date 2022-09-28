@@ -1,10 +1,7 @@
 ﻿namespace Shops.Exceptions;
 
-public class RecurringAdressException : ShopAlreadyExistsException
+public class RecurringAddressException : ShopExceptions
 {
-    public RecurringAdressException() { }
-    public RecurringAdressException(string message)
-        : base(message) { }
-    public RecurringAdressException(string message, Exception innerException)
-        : base(message, innerException) { }
+    public RecurringAddressException()
+        : base("Shop located to this address already exists") { }
 }
