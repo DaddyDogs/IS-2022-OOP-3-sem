@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <WarningLevel>5</WarningLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <UserSecretsId>aspnet-PresentationLayer-14C8D807-14F8-49DA-8CEE-7BCEA0391A9E</UserSecretsId>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\ApplicationLayer\ApplicationLayer.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.8" />
+        <PackageReference Include="Microsoft.Identity.Web" Version="1.16.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.11" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    
+</Project>
